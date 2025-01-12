@@ -108,6 +108,42 @@ const PresentationPage = () => {
     fetchSummary(); // Fetch the summary data
     setSummaryVisible(true); // Show the summary sidebar
   };
+  //handel the video button click
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const handleVideoClick = () => {
+    fetchVideo(); // Fetch the video data
+    setVideoVisible(true); // Show the video sidebar
+  };
+  //fetch the video data from backend
+  const fetchVideo = async () => {
+    try {
+      const response = await axios.get(`/api/videos/${fileId}`); // Replace with your API endpoint
+      setVideoUrl(response.data.video_url); // Assuming the backend returns the video data
+    } catch (err) {
+      console.error('Error fetching video:', err);
+      setVideoUrl('Failed to load the video.');
+    }
+  };
+  //handel the diagram button click
+  const [diagramVisible, setDiagramVisible] = useState(false);
+  const [diagramUrl, setDiagramUrl] = useState('');
+  const handleDiagramClick = () => {
+    fetchDiagram(); // Fetch the diagram data
+    setDiagramVisible(true); // Show the diagram sidebar
+  };
+  //fetch the diagram data from backend
+  const fetchDiagram = async () => {
+    try {
+      const response = await axios.get(`/api/diagrams/${fileId}`); // Replace with your API endpoint
+      setDiagramUrl(response.data.diagram_url); // Assuming the backend returns the diagram data
+    } catch (err) {
+      console.error('Error fetching diagram:', err);
+      setDiagramUrl('Failed to load the diagram.');
+    }
+  };
+
+  
 
   return (
     <div className="h-screen bg-gray-100 flex">
@@ -131,6 +167,7 @@ const PresentationPage = () => {
           </div>
         </div>
 
+
         {/* Toolbar */}
         <AnimatePresence>
           {toolbarVisible && (
@@ -143,12 +180,12 @@ const PresentationPage = () => {
               <ToolbarButton
                 icon={<LayoutDashboard />}
                 label="Generate Diagrams"
-                onClick={() => alert('Generate Diagrams action')}
+                onClick={handleDiagramClick}
               />
               <ToolbarButton
                 icon={<Video />}
                 label="Create Video"
-                onClick={() => alert('Create Video action')}
+                onClick={handleVideoClick}
               />
               <ToolbarButton
                 icon={<MessageCircle />}
@@ -236,6 +273,58 @@ const PresentationPage = () => {
               ) : (
                 <p>Loading summary...</p>
               )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+   
+      {/* AnimatedPresence for video components */}
+      <AnimatePresence>
+        {videoVisible && (
+          <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            className="w-96 bg-white border-l border-gray-200"
+          >
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="font-semibold">Video</h3>
+              <button
+                onClick={() => setVideoVisible(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <video controls className="w-full">
+                <source src={videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/*render different code from backend and render it  diagram  components */}
+      <AnimatePresence>
+        {diagramVisible && (
+          <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            className="w-96 bg-white border-l border-gray-200"
+          >
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="font-semibold">Diagram</h3>
+              <button
+                onClick={() => setDiagramVisible(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <img src={diagramUrl} alt="Diagram" className="w-full" />
             </div>
           </motion.div>
         )}

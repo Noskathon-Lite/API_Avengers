@@ -104,11 +104,11 @@ const DashboardPage = () => {
             <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-indigo-600">12</div>
+                <div className="text-2xl font-bold text-indigo-600">0</div>
                 <div className="text-sm text-gray-600">Files Uploaded</div>
               </div>
               <div className="bg-purple-50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-purple-600">5</div>
+                <div className="text-2xl font-bold text-purple-600">0</div>
                 <div className="text-sm text-gray-600">Presentations</div>
               </div>
             </div>

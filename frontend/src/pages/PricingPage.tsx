@@ -28,7 +28,7 @@ const PricingPage = () => {
         <div className="mt-16 grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <PricingCard
             title="Monthly"
-            price="$12"
+            price="$1.23"
             period="/month"
             features={[
               "Unlimited presentations",
@@ -42,7 +42,7 @@ const PricingPage = () => {
 
           <PricingCard
             title="Yearly"
-            price="$99"
+            price="$10"
             period="/year"
             features={[
               "Everything in Monthly",

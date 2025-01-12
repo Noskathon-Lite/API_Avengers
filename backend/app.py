@@ -17,6 +17,9 @@ import json
 import hmac
 import hashlib
 import urllib.parse
+import PyPDF2
+import pdfplumber
+from transformers import pipeline
 
 # App Initialization
 app = Flask(__name__)
@@ -225,6 +228,61 @@ def chat():
         )
         response_data = response.json()
         bot_reply = response_data['contents'][0]['parts'][0]['text']  # Extract the bot's reply
-        return jsonify({'response': bot_reply})  # Send the reply back to the frontend with the key 'response'
+        return jsonify({'response': bot_reply}) 
+     # Send the reply back to the frontend with the key 'response'
+summarizer = pipeline("summarization")
+
+def extract_text_from_pdf(file_path):
+    """Extracts text from a PDF file."""
+    text = ""
+    try:
+        with pdfplumber.open(file_path) as pdf:
+            for page in pdf.pages:
+                text += page.extract_text() + "\n"  # Append each page's text
+    except Exception as e:
+        print(f"Error extracting text from {file_path}: {e}")
+    return text.strip()
+
+def summarize_text(text):
+    """Summarizes the given text."""
+    if len(text) < 50:  # Ensure there's enough text to summarize
+        return text
+    summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
+    return summary[0]['summary_text']
+
+@app.route('/api/presentations/summarize', methods=['POST'])
+@token_required
+def summarize_presentations(current_user):
+    """Extracts and summarizes text from all user's PDF presentations."""
+    presentations = Presentation.query.filter_by(user_id=current_user.id).all()
+    
+    for presentation in presentations:
+        # Extract text from the PDF file
+        text = extract_text_from_pdf(presentation.file_path)
+        if text:
+            # Summarize the extracted text
+            summary = summarize_text(text)
+            # Update the summary field in the database
+            text_content = TextContent.query.filter_by(user_id=current_user.id, textcontent=text).first()
+            if text_content:
+                text_content.summary = summary
+                db.session.commit()
+            else:
+                new_text_content = TextContent(user_id=current_user.id, textcontent=text, summary=summary)
+                db.session.add(new_text_content)
+                db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Summaries generated and updated successfully.'})
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

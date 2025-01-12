@@ -22,6 +22,7 @@ const Navigation = () => {
             </Link>
           </div>
           <div className="flex space-x-8">
+            <NavLink to="/createpresentation" icon={<Presentation />} label="Create AI PPTX"/>
             <NavLink to="/upload" icon={<Upload />} label="Upload" />
             <NavLink to="/dashboard" icon={<Layout />} label="Dashboard" />
             <NavLink to="/pricing" icon={<Crown />} label="Upgrade to Pro" />

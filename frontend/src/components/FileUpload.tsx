@@ -1,84 +1,105 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Presentation } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // Import the useAuth hook
 
-const Footer = () => {
+axios.defaults.baseURL = 'http://127.0.0.1:5000/';
+
+const FileUpload = () => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth(); // Get user info and authentication status
+  const [fileTitle, setFileTitle] = useState(''); // State to handle the title input for the file
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Check if the title is provided
+      if (!fileTitle.trim()) {
+        alert('Please provide a title for the file.');
+        return;
+      }
+      formData.append('title', fileTitle);
+
+      try {
+        if (isAuthenticated) {
+          const token = localStorage.getItem('token');
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+          const response = await axios.post('/api/presentations', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+
+          });
+
+          // Log and extract the response data
+          
+          const { fileUrl, fileName } = response.data;
+
+          // Navigate to the new page with state and fallback query parameters
+          navigate(`/present/`+response.data.id, {
+            state: { fileUrl, fileName },
+            replace: true, // Optional: Prevent users from navigating back to the upload form
+          });
+        } else {
+          alert('You must be logged in to upload files.');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('File upload failed. Please try again.');
+      }
+    }
+  }, [navigate, isAuthenticated, fileTitle]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileTitle(e.target.value);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], // Added docx support
+    },
+    maxFiles: 1,
+  });
+
   return (
-    <footer className="bg-white border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1">
-            <div className="flex items-center">
-              <Presentation className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartPresent</span>
-            </div>
-            <p className="mt-4 text-gray-600">
-              Transform your presentations with AI-powered insights and animations.
-            </p>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-gray-900">Legal</h3>
-            <ul className="mt-4 space-y-2">
-              <li>
-                <Link to="/privacy" className="text-gray-600 hover:text-gray-900">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-gray-600 hover:text-gray-900">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-gray-900">Company</h3>
-            <ul className="mt-4 space-y-2">
-              <li>
-                <Link to="/about" className="text-gray-600 hover:text-gray-900">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-gray-600 hover:text-gray-900">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-gray-900">Developers</h3>
-            <ul className="mt-4 space-y-2">
-              <li>
-                <Link to="/docs" className="text-gray-600 hover:text-gray-900">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <a 
-                  href="https://github.com/smartpresent" 
-                  className="text-gray-600 hover:text-gray-900"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  GitHub
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="mt-8 pt-8 border-t border-gray-200">
-          <p className="text-gray-500 text-sm text-center">
-            © {new Date().getFullYear()} SmartPresent. All rights reserved.
-          </p>
-        </div>
+    <div>
+      {/* Title input */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">File Title</label>
+        <input
+          type="text"
+          value={fileTitle}
+          onChange={handleTitleChange}
+          placeholder="Enter file title"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
-    </footer>
+
+      {/* Dropzone Area */}
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors duration-200 ease-in-out ${
+          isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400 bg-white/50 backdrop-blur-sm'
+        }`}
+      >
+        <input {...getInputProps()} />
+        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+        <p className="mt-4 text-lg text-gray-700">
+          {isDragActive ? 'Drop your file here...' : 'Drag & drop your file here, or click to select'}
+        </p>
+        <p className="mt-2 text-sm text-gray-500">Supported formats: PDF, PPTX, DOCX</p>
+      </div>
+    </div>
   );
 };
 
-export default Footer;
+export default FileUpload;

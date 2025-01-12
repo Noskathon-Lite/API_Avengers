@@ -15,7 +15,7 @@ const DashboardPage = () => {
       if (isAuthenticated) {
         try {
           const token = localStorage.getItem('token');
-          axios.defaults.headers.common['Authorization'] = Bearer ${token};
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
           // Fetch presentations for the authenticated user
           const response = await axios.get('/api/presentations');
@@ -39,7 +39,7 @@ const DashboardPage = () => {
 
 
   const handleViewPresentation = (id) => {
-    navigate(/present/+id, { state: { id } });
+    navigate(`/present/`+id, { state: { id } });
   };
 
   return (

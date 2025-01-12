@@ -14,15 +14,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 
  export function App() {
   return (
-<<<<<<< HEAD
-    <>
-      <h1>Counter App</h1>
-      <h2>{count}</h2>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-    </>
-  )
-=======
     <AuthProvider>
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
@@ -57,6 +48,5 @@ import ProtectedRoute from './components/ProtectedRoute';
       </BrowserRouter>
     </AuthProvider>
   );
->>>>>>> ecf98578b7a69f51bd5b76899a10bed3b6ffaf83
 }
 export default App;

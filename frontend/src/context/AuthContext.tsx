@@ -30,7 +30,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     try {
       const token = localStorage.getItem('token'); // Retrieve token from localStorage
       if (token) {
-        axios.defaults.headers.common['Authorization'] = Bearer ${token};
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         const response = await axios.get<User>('/api/auth/me');
         setUser(response.data.user);
       } else {
@@ -52,7 +52,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
       // Store token and set user
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = Bearer ${token};
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(user);
     } catch (err: any) {
       console.error(err.response?.data?.message || 'Login failed');
@@ -68,7 +68,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
       // Store token and set user
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = Bearer ${token};
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(user);
     } catch (err: any) {
       console.error(err.response?.data?.message || 'Signup failed');

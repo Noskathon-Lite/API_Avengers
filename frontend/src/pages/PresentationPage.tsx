@@ -7,17 +7,16 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
 
-
-
-
 const PresentationPage = () => {
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
+  const [summaryVisible, setSummaryVisible] = useState(false); // New state for summary
   const [fileUrl, setFileUrl] = useState('');
   const [messages, setMessages] = useState([]);
   const [userMessage, setUserMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [summary, setSummary] = useState(''); // State to hold summary data
 
   const { id: fileId } = useParams();
 
@@ -62,6 +61,17 @@ const PresentationPage = () => {
     }
   };
 
+  // Fetch summary data from backend
+  const fetchSummary = async () => {
+    try {
+      const response = await axios.get(`/api/summaries/${fileId}`); // Replace with your API endpoint
+      setSummary(response.data.summary); // Assuming the backend returns the summary data
+    } catch (err) {
+      console.error('Error fetching summary:', err);
+      setSummary('Failed to load the summary.');
+    }
+  };
+
   // Render file preview based on its type
   const renderFilePreview = () => {
     if (loading) return <p>Loading file...</p>;
@@ -93,6 +103,12 @@ const PresentationPage = () => {
     }
   };
 
+  // Handle Summary button click
+  const handleSummaryClick = () => {
+    fetchSummary(); // Fetch the summary data
+    setSummaryVisible(true); // Show the summary sidebar
+  };
+
   return (
     <div className="h-screen bg-gray-100 flex">
       {/* Main Content */}
@@ -115,7 +131,6 @@ const PresentationPage = () => {
           </div>
         </div>
 
-        
         {/* Toolbar */}
         <AnimatePresence>
           {toolbarVisible && (
@@ -141,17 +156,15 @@ const PresentationPage = () => {
                 onClick={() => setChatVisible(true)}
               />
               <ToolbarButton
+                icon={<MessageCircle />}
+                label="Summary"
+                onClick={handleSummaryClick} // Update the click handler
+              />
+              <ToolbarButton
                 icon={<ChevronLeft />}
                 label="Back to Home"
-                onClick={() => window.location.href = '/'}
+                onClick={() => (window.location.href = '/')}
               />
-              <button
-                onClick={() => setToolbarVisible(false)}
-                className="w-full flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <ChevronLeft className="h-6 w-6" />
-                <span className="text-sm text-gray-700">Back</span>
-              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -198,14 +211,46 @@ const PresentationPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Summary Sidebar */}
+      <AnimatePresence>
+        {summaryVisible && (
+          <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            className="w-96 bg-white border-l border-gray-200"
+          >
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="font-semibold">Summary</h3>
+              <button
+                onClick={() => setSummaryVisible(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              {summary ? (
+                <p>{summary}</p>
+              ) : (
+                <p>Loading summary...</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 const ToolbarButton = ({ icon, label, onClick }) => (
-  <button onClick={onClick} className="w-full flex items-center p-2 hover:bg-gray-100 rounded">
-    <span>{icon}</span>
-    <span className="ml-2 text-sm">{label}</span>
+  <button
+    onClick={onClick}
+    className="w-full flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg"
+  >
+    {icon}
+    <span className="text-sm text-gray-700">{label}</span>
   </button>
 );
 

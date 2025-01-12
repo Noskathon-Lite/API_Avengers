@@ -99,7 +99,6 @@ def token_required(f):
     return decorated
 
 # Routes
-
 # User Signup
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
@@ -206,52 +205,26 @@ def get_presentation(current_user, presentation_id):
 # Define the chat endpoint
 # tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 # model = TFGPT2LMHeadModel.from_pretrained('gpt2')
-
-# Define the chat endpoint
+# model.load_weights('gpt2_weights.h5')
 @app.route('/api/chat', methods=['POST'])
-
 def chat():
-    """
-    # Chat endpoint to handle user messages and return a GPT-2-generated response.
-    # """
-    # try:
-    #     # Get the input message from the request JSON
-    #     input_message = request.json.get('message', '')
-
-    #     # Handle the case where no message is provided
-    #     if not input_message:
-    #         return jsonify({"error": "No input message provided"}), 400
-
-    #     # Encode the input message with tokenizer
-    #     encoded_input = tokenizer(
-    #         input_message, 
-    #         return_tensors='tf', 
-    #         padding=True, 
-    #         truncation=True
-    #     )
-    #     input_ids = encoded_input['input_ids']
-    #     attention_mask = encoded_input['attention_mask']
-
-    #     # Generate a response with the model
-    #     output_ids = model.generate(
-    #         input_ids=input_ids,
-    #         attention_mask=attention_mask,
-    #         max_length=50,
-    #         num_return_sequences=1,
-    #         temperature=0.7,
-    #         do_sample=True
-    #     )
-
-    #     # Decode the generated output into human-readable text
-    #     response_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-
-    #     # Return the response as JSON
-    #     return jsonify({"response": response_text})
-
-    # except Exception as e:
-    #     # Handle unexpected errors
-    #     return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-
-# Run App
+    user_message = request.json.get('message')  # Get the user message from the request
+    if not user_message:
+        return jsonify({'response': 'Please provide a message'})
+    else:
+        # Make a request to the Gemini API using the API key from environment variables
+        api_key = os.getenv('GEMINI_API_KEY')
+        response = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
+            json={
+                "contents": [{
+                    "parts": [{"text": user_message}]
+                }]
+            },
+            headers={'Content-Type': 'application/json'},
+        )
+        response_data = response.json()
+        bot_reply = response_data['contents'][0]['parts'][0]['text']  # Extract the bot's reply
+        return jsonify({'response': bot_reply})  # Send the reply back to the frontend with the key 'response'
 if __name__ == '__main__':
     app.run(debug=True)

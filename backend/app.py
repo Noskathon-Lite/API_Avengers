@@ -265,23 +265,23 @@ def get_presentation(current_user, presentation_id):
 # model = TFGPT2LMHeadModel.from_pretrained('gpt2')
 # model.load_weights('gpt2_weights.h5')
 @app.route('/api/chat', methods=['POST'])
-genai.configure(api_key="AIzaSyBNA5sSYFNQdAMEp_PuG8KxCh5pRqkxuPA")
-
-generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-}
-
-model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash-exp",
-    generation_config=generation_config,
-    system_instruction="imagine your name is Robha and you help the student with their confusion\n",
-)
 
 def chat():
+    genai.configure(api_key="AIzaSyBNA5sSYFNQdAMEp_PuG8KxCh5pRqkxuPA")
+    generation_config = {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_mime_type": "text/plain",
+    }
+    
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash-exp",
+        generation_config=generation_config,
+        system_instruction="imagine your name is Robha and you help the student with their confusion\n",
+    )
+    
     user_message = request.json.get('message')  # Get the user's message from the request
     if not user_message:
         return jsonify({'response': 'Please provide a message'}), 400

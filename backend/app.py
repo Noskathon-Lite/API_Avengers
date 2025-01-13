@@ -268,7 +268,7 @@ def get_presentation(current_user, presentation_id):
 @app.route('/api/chat', methods=['POST'])
 
 def chat():
-    genai.configure(api_key="AIzaSyBNA5sSYFNQdAMEp_PuG8KxCh5pRqkxuPA")
+    genai.configure(api_key="your api key")
     generation_config = {
         "temperature": 1,
         "top_p": 0.95,
@@ -305,7 +305,7 @@ def change_diagram_code(description):
         str: The generated code snippet in Mermaid or DOT syntax.
     """
     # Configure the generative AI client
-    genai.configure(api_key="AIzaSyBld_ZlS-oPK5I_CG27qcZNGICjf22Look")
+    genai.configure(api_key="your api key")
 
     # Define generation configuration
     generation_config = {
@@ -364,7 +364,7 @@ def summarize_text_from_pdf(pdf_path, current_user, presentation_id):
         return "The PDF contains no readable text."
 
     # Step 2: Configure the Gemini API
-    genai.configure(api_key="AIzaSyBITQTk3JDKIHUUB9Yt-vVQqDJ80JGIK-E")
+    genai.configure(api_key="api key here")
     generation_config = {
         "temperature": 2,
         "top_p": 0.95,

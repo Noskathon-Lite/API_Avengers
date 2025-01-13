@@ -400,7 +400,56 @@ def get_presentation_summary(current_user, presentation_id):
         'summary': text_content.summary
     })
 
-@app.route('api')
+@app.route('/api/diagrams/<int:presentation_id>/diagrams', methods=["GET"])
+@token_required
+def get_diagram_code(current_user, presentation_id):
+    """
+    Retrieve the diagram code from the database and return all detected types and their respective code sections.
+    """
+    # Retrieve the diagram code from the database
+    text_diagram_code = TextContent.query.filter_by(
+        user_id=current_user.id, textcontent_id=presentation_id
+    ).first()
+
+    if not text_diagram_code or not text_diagram_code.diagram_code:
+        return {"error": "Diagram code not found"}, 404
+
+    # Extract the full diagram code
+    full_diagram_code = text_diagram_code.diagram_code.strip()
+
+    # Initialize the result dictionary to store multiple types of code
+    diagrams = []
+
+    # Split the code into sections for analysis (e.g., based on a delimiter or keyword)
+    sections = full_diagram_code.split("```")  # Assuming sections are delimited by triple backticks
+
+    for section in sections:
+        # Remove unnecessary whitespace
+        section = section.strip()
+        if not section:
+            continue
+
+        # Determine the type of diagram for the current section
+        if section.startswith("graph") or section.startswith("sequenceDiagram"):
+            diagram_type = "mermaid"
+        elif section.startswith("digraph"):
+            diagram_type = "dot"  # Graphviz DOT syntax
+        elif section.startswith("@startuml"):
+            diagram_type = "plantuml"
+        elif section.startswith("flowchart") or "classDiagram" in section:
+            diagram_type = "mermaid"
+        elif section.startswith("mindmap"):
+            diagram_type = "mindmap"
+        else:
+            diagram_type = "unsupported"  # Fallback for unsupported formats
+
+        # Append the diagram type and its corresponding code to the list
+        diagrams.append({"diagram_type": diagram_type, "diagram_code": section})
+
+    # Return all detected diagram types and their respective code sections
+    return {"diagrams": diagrams}, 200
+
+
 
 
 

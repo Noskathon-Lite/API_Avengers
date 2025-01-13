@@ -6,6 +6,8 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
+import Graphviz from 'graphviz-react';
+import Mermaid from 'mermaid';
 
 
 const PresentationPage = () => {
@@ -135,24 +137,43 @@ const PresentationPage = () => {
     }
   };
   //handel the diagram button click
-  const [diagramVisible, setDiagramVisible] = useState(false);
-  const [diagramUrl, setDiagramUrl] = useState('');
   const handleDiagramClick = () => {
     fetchDiagram(); // Fetch the diagram data
     setDiagramVisible(true); // Show the diagram sidebar
   };
-  //fetch the diagram data from backend
-  const fetchDiagram = async () => {
-    try {
-      const response = await axios.get(`/api/diagrams/${fileId}`); // Replace with your API endpoint
-      setDiagramUrl(response.data.diagram_url); // Assuming the backend returns the diagram data
-    } catch (err) {
-      console.error('Error fetching diagram:', err);
-      setDiagramUrl('Failed to load the diagram.');
-    }
-  };
+  const [diagramCode, setDiagramCode] = useState('');
+const [diagramType, setDiagramType] = useState('');
 
+
+const fetchDiagram = async () => {
+  try {
+    const response = await axios.get(`/api/diagrams/${fileId}/diagrams`);
+
+    const diagramCode = response.data.diagram_code?.trim();
+    if (!diagramCode) {
+      throw new Error('No diagram code provided by the server.');
+    }
+
+    // Determine the diagram type based on the content of the code
+    let diagramType = '';
+    if (diagramCode.startsWith('graph') || diagramCode.startsWith('sequenceDiagram')) {
+      diagramType = 'mermaid'; // Mermaid syntax
+    } else if (diagramCode.startsWith('digraph') || diagramCode.startsWith('graph')) {
+      diagramType = 'dot'; // Graphviz DOT syntax
+    } else {
+      diagramType = 'unsupported'; // Fallback for unsupported diagram types
+    }
+
+    setDiagramCode(diagramCode); // Set the diagram code
+    setDiagramType(diagramType); // Set the detected diagram type
+  } catch (err) {
+    console.error('Error fetching diagram:', err.message || err);
+    setDiagramCode('Failed to load the diagram.');
+    setDiagramType('error'); // Set a fallback type for errors
+  }
+  };
   
+  const [diagramVisible, setDiagramVisible] = useState(false);
 
   return (
     <div className="h-screen bg-gray-100 flex">
@@ -313,26 +334,35 @@ const PresentationPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      {/*render different code from backend and render it  diagram  components */}
+      {/* Diagram Sidebar */}
       <AnimatePresence>
         {diagramVisible && (
           <motion.div
             initial={{ opacity: 0, x: 300 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 300 }}
-            className="w-96 bg-white border-l border-gray-200"
+            transition={{ duration: 0.3 }}
+            className="fixed right-0 top-0 w-96 h-full bg-white border-l border-gray-200 shadow-lg"
           >
             <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-semibold">Diagram</h3>
+              <h3 className="font-semibold">Diagram Viewer</h3>
               <button
                 onClick={() => setDiagramVisible(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <ChevronLeft className="h-5 w-5" />
+                Close
               </button>
             </div>
-            <div className="p-4">
-              <img src={diagramUrl} alt="Diagram" className="w-full" />
+            <div className="p-4 overflow-auto">
+              {diagramType === 'mermaid' ? (
+                <Mermaid chart={diagramCode} />
+              ) : diagramType === 'dot' ? (
+                <Graphviz dot={diagramCode} />
+              ) : diagramType === 'unsupported' ? (
+                <p>Unsupported diagram type.</p>
+              ) : (
+                <p>Error loading diagram.</p>
+              )}
             </div>
           </motion.div>
         )}

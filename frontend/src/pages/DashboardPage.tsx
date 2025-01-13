@@ -11,7 +11,7 @@ const DashboardPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPresentations = async () => {
+    const fetchPresentations = async () => {  
       if (isAuthenticated) {
         try {
           const token = localStorage.getItem('token');

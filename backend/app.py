@@ -17,9 +17,6 @@ import json
 import hmac
 import hashlib
 import urllib.parse
-import PyPDF2
-import pdfplumber
-from transformers import pipeline
 
 # App Initialization
 app = Flask(__name__)

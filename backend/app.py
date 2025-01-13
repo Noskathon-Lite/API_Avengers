@@ -400,6 +400,8 @@ def get_presentation_summary(current_user, presentation_id):
         'summary': text_content.summary
     })
 
+@app.route('api')
+
 
 
 if __name__ == '__main__':

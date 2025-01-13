@@ -76,6 +76,7 @@ class TextContent(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow) 
     diagram_code=db.Column(db.Text, nullable=True)  # Optional diagram code
     summary_to_speech_path=db.Column(db.Text, nullable=True)  # Optional summary to speech
+    textcontent_id=db.Column(db.Integer, nullable=False)  # Foreign key to the textcontent table
 
 # Create Tables
 with app.app_context():
@@ -147,7 +148,7 @@ def token_required(f):
             return jsonify({'success': False, 'message': 'Token expired'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'success': False, 'message': 'Invalid token'}), 401
-        return f(current_user, *args, **kwargs)
+        return f(current_user, *args, **kwargs) # Call the route function with the current user as an argument
     return decorated
 
 # Routes
@@ -227,16 +228,12 @@ def upload_presentation(current_user):
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
-    # abstracted_text=text_abstractor(filepath)
-    # summary_text_final=summary_text(abstracted_text)
-    # # change the text to array after each point
-    # summary_text_final = [point for point in summary_text_final]
-    # # Save the text content to the database
-    # new_text_content = TextContent(user_id=current_user.id, textcontent=abstracted_text, summary=summary_text_final)
-    # db.session.add(new_text_content)
+    
     new_presentation = Presentation(user_id=current_user.id, title=request.form['title'], file_path=filepath)
+    
     db.session.add(new_presentation)
     db.session.commit()
+    summarize_text_from_pdf(filepath, current_user, new_presentation.id)
     return jsonify({'success': True, 'message': 'Presentation uploaded successfully!','id':new_presentation.id})
 
 # Serve Uploaded Files
@@ -285,12 +282,61 @@ def chat():
     user_message = request.json.get('message')  # Get the user's message from the request
     if not user_message:
         return jsonify({'response': 'Please provide a message'}), 400
-    
     # Start a chat session and get the response
     chat_session = model.start_chat(history=[])
     response = chat_session.send_message(user_message)
 
     return jsonify({'response': response.text})
      # Send the reply back to the frontend with the key 'response'
+
+# summary of pdf file
+def summarize_text_from_pdf(pdf_path, current_user, presentation_id):
+    # Step 1: Extract text from the PDF
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            extracted_text = ''
+            for page in pdf.pages:
+                extracted_text += page.extract_text() + '\n'
+    except Exception as e:
+        return f"Error reading PDF: {e}"
+
+    if not extracted_text.strip():
+        return "The PDF contains no readable text."
+
+    # Step 2: Configure the Gemini API
+    genai.configure(api_key="AIzaSyBITQTk3JDKIHUUB9Yt-vVQqDJ80JGIK-E")
+    generation_config = {
+        "temperature": 2,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_mime_type": "text/plain",
+    }
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash-exp",
+        generation_config=generation_config,
+        system_instruction="You are a text summarization expert. Summarize the text from the PDF into concise bullet points. Each point should capture key ideas, facts, or themes, and avoid redundancy. The summary should:\n\n- Be clear and concise.\n- Contain only relevant information.\n- Be written in plain, understandable language.\n",
+    )
+    # Step 3: Start a chat session and send the extracted text for summarization
+    chat_session = model.start_chat(history=[])
+    response = chat_session.send_message(extracted_text)
+    db.session.add(TextContent(user_id=current_user.id, textcontent=extracted_text, summary=response.text,textcontent_id=presentation_id))
+    db.session.commit()
+
+# Fetch Summaries for a Specific Presentation
+@app.route('/api/presentations/<int:presentation_id>/summary', methods=['GET'])
+@token_required
+def get_presentation_summary(current_user, presentation_id):
+    text_content = TextContent.query.filter_by(user_id=current_user.id, textcontent_id=presentation_id).first()
+    if not text_content:
+        return jsonify({'success': False, 'message': 'Summary not found'}), 404
+
+    return jsonify({
+        'success': True,
+        'summary': text_content.summary
+    })
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

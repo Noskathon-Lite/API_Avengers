@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="col-span-1">
             <div className="flex items-center">
               <Presentation className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartPresent</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Neo-Presenta</span>
             </div>
             <p className="mt-4 text-gray-600">
               Transform your presentations with AI-powered insights and animations.
@@ -73,7 +73,7 @@ const Footer = () => {
         
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm text-center">
-            © {new Date().getFullYear()} SmartPresent. All rights reserved.
+            © {new Date().getFullYear()}Neo-Presenta. All rights reserved.
           </p>
         </div>
       </div>

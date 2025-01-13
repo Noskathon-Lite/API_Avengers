@@ -64,7 +64,7 @@ const PresentationPage = () => {
   // Fetch summary data from backend
   const fetchSummary = async () => {
     try {
-      const response = await axios.get(`/api/summaries/${fileId}`); // Replace with your API endpoint
+      const response = await axios.get(`/api/presentations/${fileId}/summaries`); // Replace with your API endpoint
       setSummary(response.data.summary); // Assuming the backend returns the summary data
     } catch (err) {
       console.error('Error fetching summary:', err);

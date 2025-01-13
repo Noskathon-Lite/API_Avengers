@@ -11,23 +11,20 @@ import random as rd
 import string as st
 from flask import Flask, request, jsonify
 import requests
-<<<<<<< HEAD
+
 import time
 import base64
 import json
 import hmac
 import hashlib
 import urllib.parse
-=======
+
 import pdfplumber
 import pdfplumber
 import google.generativeai as genai
 
 # from transformers import pipeline
 # from transformers import T5ForConditionalGeneration, T5Tokenizer
-
->>>>>>> e5e0251df375f5b1322113094718f5b9c74d9c56
-
 # App Initialization
 app = Flask(__name__)
 CORS(app)

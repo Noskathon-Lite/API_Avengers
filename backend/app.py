@@ -293,6 +293,62 @@ def chat():
     return jsonify({'response': response.text})
      # Send the reply back to the frontend with the key 'response'
 
+# function to change the summary to dot lng or mermaid synatx
+def change_diagram_code(description):
+    """
+    Converts a natural language description of a diagram into Mermaid or DOT syntax code.
+
+    Parameters:
+        description (str): The natural language description of the diagram.
+
+    Returns:
+        str: The generated code snippet in Mermaid or DOT syntax.
+    """
+    # Configure the generative AI client
+    genai.configure(api_key="AIzaSyBld_ZlS-oPK5I_CG27qcZNGICjf22Look")
+
+    # Define generation configuration
+    generation_config = {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_mime_type": "text/plain",
+    }
+
+    # Initialize the generative model
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash-exp",
+        generation_config=generation_config,
+        system_instruction="""
+        Train the model to convert provided natural language descriptions into code snippets for generating specific types of diagrams (flowcharts, sequence diagrams, use case diagrams, and class diagrams) that can be rendered on websites using Mermaid or DOT syntax.
+
+        Instructions:
+        Input Description:
+        
+        The model will receive a natural language description of a diagram type to create. The specific type of diagram will be provided directly by you. Input types include getting from the user:
+        
+        Output Requirements:
+        
+        The model should output the corresponding code snippet in either Mermaid or DOT syntax.
+        The code should be structured correctly for rendering in a web environment.
+
+        Supported Diagram Types:
+        
+        Flowchart: Use Mermaid syntax for flowcharts.
+        Sequence Diagram: Use Mermaid syntax for sequence diagrams.
+        Use Case Diagram: Use Mermaid syntax for use case diagrams.
+        Class Diagram: Use Mermaid syntax for class diagrams.
+        """
+    )
+
+    # Start a chat session
+    chat_session = model.start_chat(history=[])
+
+    # Send the natural language description and get the response
+    response = chat_session.send_message(description)
+    return response.text
+
 # summary of pdf file
 def summarize_text_from_pdf(pdf_path, current_user, presentation_id):
     # Step 1: Extract text from the PDF
@@ -324,8 +380,13 @@ def summarize_text_from_pdf(pdf_path, current_user, presentation_id):
     # Step 3: Start a chat session and send the extracted text for summarization
     chat_session = model.start_chat(history=[])
     response = chat_session.send_message(extracted_text)
-    db.session.add(TextContent(user_id=current_user.id, textcontent=extracted_text, summary=response.text,textcontent_id=presentation_id))
+
+    diagram_code=change_diagram_code(response.text)
+    db.session.add(TextContent(user_id=current_user.id, textcontent=extracted_text, summary=response.text,textcontent_id=presentation_id,diagram_code=diagram_code))
     db.session.commit()
+
+# function to change the summary to dot lng or mermaid synatx
+
 
 # Fetch Summaries for a Specific Presentation
 @app.route('/api/presentations/<int:presentation_id>/summary', methods=['GET'])
@@ -334,7 +395,6 @@ def get_presentation_summary(current_user, presentation_id):
     text_content = TextContent.query.filter_by(user_id=current_user.id, textcontent_id=presentation_id).first()
     if not text_content:
         return jsonify({'success': False, 'message': 'Summary not found'}), 404
-
     return jsonify({
         'success': True,
         'summary': text_content.summary

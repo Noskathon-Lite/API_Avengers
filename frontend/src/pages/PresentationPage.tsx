@@ -31,6 +31,7 @@ const PresentationPage = () => {
         try {
           const response = await axios.get(`/api/presentations/${fileId}`);
           setFileUrl(response.data.file_url); // Assuming the backend returns the file URL
+          
         } catch (err) {
           console.error('Error fetching file:', err);
           setError('Failed to load the file. Please try again later.');
@@ -67,7 +68,9 @@ const PresentationPage = () => {
     try {
       const response = await axios.get(`/api/presentations/${fileId}/summary`);
       if (response.data.success) {
-        setSummary(response.data.summary); // Assuming backend returns { success: true, summary: "..." }
+        // Replace asterisks with new lines for better visual formatting
+        const formattedSummary = response.data.summary.replace(/\*/g, '\n');
+        setSummary(formattedSummary);
       } else {
         setError(response.data.message || 'Failed to fetch summary.');
       }
@@ -76,7 +79,6 @@ const PresentationPage = () => {
       setError('An error occurred while fetching the summary.');
     }
   }
-  
 
   // Render file preview based on its type
   const renderFilePreview = () => {
@@ -258,33 +260,32 @@ const PresentationPage = () => {
 
       {/* Summary Sidebar */}
       <AnimatePresence>
-        {summaryVisible && (
-          <motion.div
-            initial={{ opacity: 0, x: 300 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 300 }}
-            className="w-96 bg-white border-l border-gray-200"
-          >
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-semibold">Summary</h3>
-              <button
-                onClick={() => setSummaryVisible(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="p-4">
-              {summary ? (
-                <p>{summary}</p>
-              ) : (
-                <p>Loading summary...</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-   
+      {summaryVisible && (
+        <motion.div
+          initial={{ opacity: 0, x: 300 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 300 }}
+          className="w-96 bg-white border-l border-gray-200 rounded-lg shadow-lg"
+        >
+          <div className="p-4 border-b flex justify-between items-center">
+            <h3 className="font-semibold text-lg">Summary</h3>
+            <button
+              onClick={() => setSummaryVisible(false)}
+              className="text-gray-500 hover:text-gray-700 transition duration-200"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="p-4 h-80 overflow-y-auto"> {/* Adjusted height */}
+            {summary ? (
+              <p className="whitespace-pre-line">{summary}</p> // Preserve new lines
+            ) : (
+              <p>Loading summary...</p>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
       {/* AnimatedPresence for video components */}
       <AnimatePresence>
         {videoVisible && (

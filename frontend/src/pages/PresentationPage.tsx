@@ -7,6 +7,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
 
+
 const PresentationPage = () => {
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
@@ -64,22 +65,28 @@ const PresentationPage = () => {
   // Fetch summary data from backend
   const fetchSummary = async () => {
     try {
-      const response = await axios.get(`/api/presentations/${fileId}/summaries`); // Replace with your API endpoint
-      setSummary(response.data.summary); // Assuming the backend returns the summary data
+      const response = await axios.get(`/api/presentations/${fileId}/summary`);
+      if (response.data.success) {
+        setSummary(response.data.summary); // Assuming backend returns { success: true, summary: "..." }
+      } else {
+        setError(response.data.message || 'Failed to fetch summary.');
+      }
     } catch (err) {
       console.error('Error fetching summary:', err);
-      setSummary('Failed to load the summary.');
+      setError('An error occurred while fetching the summary.');
     }
-  };
+  }
+  
 
   // Render file preview based on its type
   const renderFilePreview = () => {
     if (loading) return <p>Loading file...</p>;
     if (error) return <p className="text-red-500">{error}</p>;
     if (!fileUrl) return <p>No file available for preview.</p>;
-
+    
+    
     const fileExtension = fileUrl.split('.').pop().toLowerCase();
-
+    
     switch (fileExtension) {
       case 'pdf':
         return (
@@ -101,7 +108,7 @@ const PresentationPage = () => {
       default:
         return <p className="text-red-500">Unsupported file type.</p>;
     }
-  };
+    };
 
   // Handle Summary button click
   const handleSummaryClick = () => {

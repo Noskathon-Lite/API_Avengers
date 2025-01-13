@@ -11,14 +11,12 @@ import random as rd
 import string as st
 from flask import Flask, request, jsonify
 import requests
-
 import time
 import base64
 import json
 import hmac
 import hashlib
 import urllib.parse
-
 import pdfplumber
 import pdfplumber
 import google.generativeai as genai

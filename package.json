@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "graphviz-react": "^1.2.5",
+    "xlsx": "^0.18.5"
+  }
+}

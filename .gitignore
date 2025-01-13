@@ -1,0 +1,30 @@
+# Flask
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+instance/
+.webassets-cache
+.env
+venv/
+env/
+ENV/
+*.env
+*.venv
+*.envrc
+*.egg-info/
+dist/
+build/
+*.log
+
+# React + Vite + TypeScript
+node_modules/
+dist/
+*.log
+*.env
+*.local
+*.cache
+.vscode/
+.idea/
+.DS_Store
+*.tsbuildinfo

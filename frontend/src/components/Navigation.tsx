@@ -26,12 +26,20 @@ const Navigation = () => {
               <span className="ml-2 text-xl font-bold text-gray-900">Neo-Presenta</span>
             </Link>
           </div>
+<<<<<<< HEAD
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:space-x-8">
             <NavLink to="/upload" icon={<Upload className="h-5 w-5" />} label="Upload" />
             <NavLink to="/dashboard" icon={<Layout className="h-5 w-5" />} label="Dashboard" />
             <NavLink to="/pricing" icon={<Crown className="h-5 w-5" />} label="Upgrade to Pro" />
+=======
+          <div className="flex space-x-8">
+            <NavLink to="/createpresentation" icon={<Presentation />} label="Create AI PPTX"/>
+            <NavLink to="/upload" icon={<Upload />} label="Upload" />
+            <NavLink to="/dashboard" icon={<Layout />} label="Dashboard" />
+            <NavLink to="/pricing" icon={<Crown />} label="Upgrade to Pro" />
+>>>>>>> e5e0251df375f5b1322113094718f5b9c74d9c56
             <NavLink 
               to="/profile" 
               icon={<User className="h-5 w-5" />} 

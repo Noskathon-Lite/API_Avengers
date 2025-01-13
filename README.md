@@ -1,36 +1,44 @@
 ## NeoPresenta
 
 ## Overview
-This project is a web application developed using **React**, **Vite**, and **TypeScript** for the frontend, and **Flask** for the backend. The application aims to provide users with a fast, responsive, and intuitive experience while ensuring a lightweight and efficient API management system. The frontend utilizes modern technologies to build an interactive user interface, while the Flask backend offers scalability and ease of deployment. This project serves as an excellent example of combining cutting-edge frontend technologies with a flexible backend architecture.
+Presenting you Neo-Presenta :Dynamic Diagram Generator is a web application designed to transform static files into dynamic visual diagrams such as flowcharts, use case diagrams, and other types of diagrams. The application leverages AI for summarization and includes an AI chatbot to enhance user experience. It aims to make it easy for mapping minds.
 
-### Problem Statement
-In today’s fast-paced digital world, web applications need to deliver seamless user experiences while being efficient in handling data and requests. Many web applications struggle with poor performance due to heavy frontend frameworks or inefficient backend processing. This project aims to address the following challenges:
+Features
 
-1. **Slow User Experience**: Many web applications suffer from slow user interfaces due to outdated frontend frameworks and unoptimized build tools.
-2. **Inefficient Backend Architecture**: Backend systems often experience performance bottlenecks under heavy traffic, causing delays in response times.
-3. **Fragmented Development Tools**: Developers often struggle with toolchain fragmentation, resulting in long setup times and maintenance overhead.
+FILE Parsing: Upload static PDF, docs, pptx documents for analysis.
 
-The goal of this project is to build a web application that addresses these problems by:
+Diagram Generation: Automatically create dynamic diagrams such as:
 
-- Leveraging **React** and **Vite** to provide a fast, modern user interface that loads quickly and reacts to user interactions instantly.
-- Using **TypeScript** to ensure better code quality and early detection of bugs during development.
-- Employing **Flask** as the backend to provide a minimal and efficient API that can handle data requests without unnecessary overhead.
+Flowcharts
 
-## Features
+Use case diagrams
 
-- **React-based UI**: Built using **React** for dynamic, interactive views and **React Router** for seamless navigation.
-- **TypeScript Integration**: The application is developed with **TypeScript** to catch errors early and improve maintainability.
-- **Efficient Development**: **Vite** is used for fast development and optimized production builds, reducing wait time during code changes and ensuring fast load times for end-users.
-- **Flask Backend**: A lightweight **Flask** backend API that can handle requests and serve data without the complexity of heavier frameworks.
-- **State Management**: Efficient and simple state management using React hooks, ensuring smooth user experience with dynamic content updates.
+Other relevant visual representations
 
-## Problem Solved
-This project is designed to solve the following core issues:
+AI Summarization: Summarize the content of the uploaded PDF for quick insights.
 
-1. **Improved Performance**: By using **Vite**, the project benefits from faster build times and improved runtime performance. This ensures that users can interact with the app quickly without long loading times or delays in data fetching.
-2. **Scalability**: The **Flask** backend provides an optimal framework for scaling the application without introducing unnecessary complexity or overhead.
-3. **Code Maintainability**: Using **TypeScript** and **React** ensures that the code is clean, maintainable, and less prone to errors, which is critical for future updates and expansions.
+AI Chatbot: Interact with an AI chatbot to assist in understanding the content and features.
 
+Technologies Used
+
+Frontend:
+
+
+Frameworks/Libraries: [Insert your frontend framework/library, if any]
+
+Backend:
+
+[Insert your backend language/framework, e.g., Node.js, Flask, etc.]
+
+Integration with AI models for summarization and chatbot functionality
+
+AI/ML:
+
+[Specify AI/ML technologies or APIs used,Gemini]
+
+Database:
+
+[Insert database used, SQLite as it is lightwight database]
 ## Installation
 
 ### Prerequisites
